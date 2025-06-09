@@ -303,6 +303,49 @@
             background-color: #e74c3c;
         }
 
+        .detailed-results {
+            margin-top: 40px;
+            text-align: left;
+        }
+
+        .detailed-results h3 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .result-question-item {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .result-question-item p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .result-question-item .user-answer,
+        .result-question-item .correct-answer {
+            font-size: 1rem;
+            margin-bottom: 5px;
+            padding-left: 15px;
+        }
+
+        .result-question-item .user-answer.wrong-answer {
+            color: var(--wrong-color);
+            font-weight: bold;
+        }
+
+        .result-question-item .correct-answer {
+            color: var(--correct-color);
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -378,6 +421,10 @@
                 </div>
             </div>
             <button class="btn btn-restart" id="restart-btn">Restart Quiz</button>
+
+            <div class="detailed-results" id="detailed-results">
+                <h3>Detailed Results</h3>
+            </div>
         </div>
     </div>
 
@@ -713,6 +760,7 @@
         const totalCount = document.getElementById('total-count');
         const restartBtn = document.getElementById('restart-btn');
         const questionIndicator = document.getElementById('question-indicator');
+        const detailedResultsContainer = document.getElementById('detailed-results');
 
         // Initialize quiz
         function initQuiz() {
@@ -740,6 +788,7 @@
             // Reset UI
             quizContainer.style.display = 'block';
             resultsContainer.style.display = 'none';
+            detailedResultsContainer.innerHTML = '<h3>Detailed Results</h3>'; // Clear previous detailed results
             updateProgressBar();
             updateButtons();
         }
@@ -915,6 +964,39 @@
             wrongCount.textContent = questions.length - correctAnswers;
             totalCount.textContent = questions.length;
             
+            // Populate detailed results
+            detailedResultsContainer.innerHTML = '<h3>Detailed Results</h3>'; // Clear previous results
+            questions.forEach((question, index) => {
+                const questionItem = document.createElement('div');
+                questionItem.classList.add('result-question-item');
+
+                const questionTextElement = document.createElement('p');
+                questionTextElement.textContent = `Question ${index + 1}: ${question.question}`;
+                questionItem.appendChild(questionTextElement);
+
+                const userAnswerElement = document.createElement('div');
+                const userAnswer = userAnswers[index];
+                if (userAnswer !== null) {
+                    userAnswerElement.textContent = `Your Answer: ${String.fromCharCode(97 + userAnswer)}) ${question.options[userAnswer]}`;
+                    if (userAnswer !== question.correctAnswer) {
+                        userAnswerElement.classList.add('user-answer', 'wrong-answer');
+                    } else {
+                        userAnswerElement.classList.add('user-answer');
+                    }
+                } else {
+                    userAnswerElement.textContent = 'Your Answer: Not answered';
+                    userAnswerElement.classList.add('user-answer', 'wrong-answer');
+                }
+                questionItem.appendChild(userAnswerElement);
+
+                const correctAnswerElement = document.createElement('div');
+                correctAnswerElement.textContent = `Correct Answer: ${String.fromCharCode(97 + question.correctAnswer)}) ${question.options[question.correctAnswer]}`;
+                correctAnswerElement.classList.add('correct-answer');
+                questionItem.appendChild(correctAnswerElement);
+
+                detailedResultsContainer.appendChild(questionItem);
+            });
+
             // Update UI
             quizContainer.style.display = 'none';
             resultsContainer.style.display = 'block';
